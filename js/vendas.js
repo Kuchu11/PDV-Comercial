@@ -176,3 +176,48 @@ function renderizarCarrinho() {
         botaoFinalizar.innerHTML = `<span class="material-symbols-outlined">check_circle</span> FINALIZAR VENDA ${totalFormatado}`;
     }
 }
+window.finishSale = function() {
+    if (carrinho.length === 0) {
+        alert("O carrinho está vazio!");
+        return;
+    }
+
+    const modal = document.getElementById('receipt-modal');
+    const receiptItems = document.getElementById('receipt-items');
+    const receiptTotal = document.getElementById('receipt-total');
+    const receiptClient = document.getElementById('receipt-client');
+    const receiptDate = document.getElementById('receipt-date');
+    const clientSelect = document.getElementById('client-select');
+
+    if (!modal || !receiptItems || !receiptTotal || !receiptClient || !receiptDate || !clientSelect) return;
+
+    receiptItems.innerHTML = '';
+    let total = 0;
+
+    carrinho.forEach(item => {
+        const subtotal = item.price * item.quantity;
+        total += subtotal;
+        
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td class="py-1">${item.name.toUpperCase()}</td>
+            <td class="text-center py-1">${item.quantity}</td>
+            <td class="text-right py-1">R$ ${subtotal.toFixed(2).replace('.', ',')}</td>
+        `;
+        receiptItems.appendChild(row);
+    });
+
+    receiptTotal.innerText = `R$ ${total.toFixed(2).replace('.', ',')}`;
+    receiptClient.innerText = `CLIENTE: ${clientSelect.value}`;
+    receiptDate.innerText = new Date().toLocaleDateString('pt-BR');
+
+    modal.classList.remove('hidden');
+}
+
+window.closeReceipt = function() {
+    const modal = document.getElementById('receipt-modal');
+    if (modal) {
+        modal.classList.add('hidden');
+    }
+    limparCarrinhoCompleto();
+}
