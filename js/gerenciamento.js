@@ -22,9 +22,9 @@ document.addEventListener('DOMContentLoaded', () => {
             price: preco
         };
 
-        const produtos = obterDadosDoBanco('produtos');
+        const produtos = window.obterDadosDoBanco('produtos');
         produtos.push(novoProduto);
-        salvarDadosNoBanco('produtos', produtos);
+        window.salvarDadosNoBanco('produtos', produtos);
 
         form.reset();
         renderizarProdutos('produtos');
@@ -37,7 +37,7 @@ function renderizarProdutos(chaveArmazenamento) {
     
     if (!listaContainer || !contador) return;
 
-    const produtos = obterDadosDoBanco(chaveArmazenamento);
+    const produtos = window.obterDadosDoBanco(chaveArmazenamento);
     
     contador.innerText = `${produtos.length} itens`;
     listaContainer.innerHTML = '';
@@ -63,9 +63,9 @@ function renderizarProdutos(chaveArmazenamento) {
 
 window.excluirProduto = function(chaveArmazenamento, id) {
     if (confirm('Deseja realmente excluir este produto?')) {
-        let produtos = obterDadosDoBanco(chaveArmazenamento);
+        let produtos = window.obterDadosDoBanco(chaveArmazenamento);
         produtos = produtos.filter(p => p.id !== id);
-        salvarDadosNoBanco(chaveArmazenamento, produtos);
+        window.salvarDadosNoBanco(chaveArmazenamento, produtos);
         renderizarProdutos(chaveArmazenamento);
     }
 }

@@ -1,24 +1,49 @@
 let carrinho = [];
 
 document.addEventListener('DOMContentLoaded', () => {
+    const inputPesquisa = document.getElementById('input-pesquisa');
+    if (inputPesquisa) {
+        inputPesquisa.value = ''; 
+    }
+
     renderizarVitrineProdutos('produtos');
+    renderizarSugestoesPesquisa('produtos');
+    renderizarSeletorClientes('clientes');
     renderizarCarrinho();
 
-    const inputPesquisa = document.querySelector('input[placeholder="Pesquisar produto..."]');
     if (inputPesquisa) {
         inputPesquisa.addEventListener('input', (e) => {
-            const termo = e.target.value.toLowerCase();
+            const termo = e.target.value.toLowerCase().trim();
             filtrarVitrineProdutos('produtos', termo);
+        });
+        
+        inputPesquisa.addEventListener('change', (e) => {
+            const produtos = window.obterDadosDoBanco('produtos');
+            const encontrado = produtos.find(p => p.name.toUpperCase() === e.target.value.toUpperCase());
+            if (encontrado) {
+                window.adicionarAoCarrinho(encontrado.name, encontrado.price);
+                e.target.value = '';
+                filtrarVitrineProdutos('produtos', '');
+            }
+        });
+    }
+
+    const seletorClientes = document.getElementById('client-select');
+    if (seletorClientes) {
+        seletorClientes.addEventListener('change', (e) => {
+            const cabecalhoCarrinho = document.getElementById('cart-customer-header');
+            if (cabecalhoCarrinho) {
+                cabecalhoCarrinho.innerText = `Carrinho de: ${e.target.value}`;
+            }
         });
     }
 });
 
 function renderizarVitrineProdutos(chaveArmazenamento) {
-    const gridContainer = document.querySelector('.grid-cols-2');
+    const gridContainer = document.getElementById('produtos-vitrine') || document.querySelector('.grid-cols-2');
     if (!gridContainer) return;
 
-    const produtos = obterDadosDoBanco(chaveArmazenamento);
-
+    const produtos = window.obterDadosDoBanco(chaveArmazenamento);
     produtos.sort((a, b) => a.name.localeCompare(b.name, 'pt-BR'));
 
     gridContainer.innerHTML = '';
@@ -44,15 +69,20 @@ function renderizarVitrineProdutos(chaveArmazenamento) {
 }
 
 function filtrarVitrineProdutos(chaveArmazenamento, termoPesquisa) {
-    const gridContainer = document.querySelector('.grid-cols-2');
+    const gridContainer = document.getElementById('produtos-vitrine') || document.querySelector('.grid-cols-2');
     if (!gridContainer) return;
 
-    const produtos = obterDadosDoBanco(chaveArmazenamento);
-    produtos.sort((a, b) => a.name.localeCompare(b.name, 'pt-BR'));
-
+    const produtos = window.obterDadosDoBanco(chaveArmazenamento);
     gridContainer.innerHTML = '';
 
-    const filtrados = produtos.filter(p => p.name.toLowerCase().includes(termoPesquisa));
+    const filtrados = produtos.filter(p => p.name.toLowerCase().includes(termoPesquisa.toLowerCase()));
+
+    if (filtrados.length === 0) {
+        gridContainer.innerHTML = '<p class="text-on-surface-variant col-span-2 text-center py-4">Nenhum produto encontrado.</p>';
+        return;
+    }
+
+    filtrados.sort((a, b) => a.name.localeCompare(b.name, 'pt-BR'));
 
     filtrados.forEach(produto => {
         const cardDiv = document.createElement('div');
@@ -74,9 +104,23 @@ function filtrarVitrineProdutos(chaveArmazenamento, termoPesquisa) {
     });
 }
 
+function renderizarSeletorClientes(chaveArmazenamento) {
+    const seletor = document.getElementById('client-select');
+    if (!seletor) return;
+
+    const clientes = window.obterDadosDoBanco(chaveArmazenamento);
+    seletor.innerHTML = '<option value="CONSUMIDOR">CONSUMIDOR</option>';
+
+    clientes.forEach(cliente => {
+        const option = document.createElement('option');
+        option.value = cliente.name.toUpperCase();
+        option.innerText = cliente.name.toUpperCase();
+        seletor.appendChild(option);
+    });
+}
+
 window.adicionarAoCarrinho = function(nomeItem, precoItem) {
     const itemExistente = carrinho.find(item => item.name === nomeItem);
-
     if (itemExistente) {
         itemExistente.quantity += 1;
     } else {
@@ -90,7 +134,6 @@ window.alterarQuantidadeCarrinho = function(nomeItem, delta) {
     if (!item) return;
 
     item.quantity += delta;
-
     if (item.quantity <= 0) {
         carrinho = carrinho.filter(i => i.name !== nomeItem);
     }
@@ -144,7 +187,6 @@ function renderizarCarrinho() {
 
         const itemDiv = document.createElement('div');
         itemDiv.className = 'flex items-center justify-between p-3 bg-surface-container-highest rounded-xl border border-outline-variant';
-
         itemDiv.innerHTML = `
             <div class="flex flex-col">
                 <span class="font-label-bold text-white text-lg">${item.name}</span>
@@ -176,6 +218,7 @@ function renderizarCarrinho() {
         botaoFinalizar.innerHTML = `<span class="material-symbols-outlined">check_circle</span> FINALIZAR VENDA ${totalFormatado}`;
     }
 }
+
 window.finishSale = function() {
     if (carrinho.length === 0) {
         alert("O carrinho está vazio!");
@@ -232,9 +275,31 @@ window.finishSale = function() {
         items: itensVendidos
     };
 
-    const historico = obterDadosDoBanco('historico');
+    const historico = window.obterDadosDoBanco('historico');
     historico.unshift(novaVenda);
-    salvarDadosNoBanco('historico', historico);
+    window.salvarDadosNoBanco('historico', historico);
 
     modal.classList.remove('hidden');
+}
+
+window.closeReceipt = function() {
+    const modal = document.getElementById('receipt-modal');
+    if (modal) {
+        modal.classList.add('hidden');
+    }
+    limparCarrinhoCompleto();
+}
+function renderizarSugestoesPesquisa(chaveArmazenamento) {
+    const datalist = document.getElementById('produtos-sugestoes');
+    if (!datalist) return;
+
+    const produtos = window.obterDadosDoBanco(chaveArmazenamento);
+    
+    datalist.innerHTML = '';
+
+    produtos.forEach(produto => {
+        const option = document.createElement('option');
+        option.value = produto.name;
+        datalist.appendChild(option);
+    });
 }

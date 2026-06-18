@@ -6,3 +6,7 @@ function obterDadosDoBanco(chaveArmazenamento) {
 function salvarDadosNoBanco(chaveArmazenamento, dadosParaSalvar) {
     localStorage.setItem(chaveArmazenamento, JSON.stringify(dadosParaSalvar));
 }
+
+
+window.obterDadosDoBanco = obterDadosDoBanco;
+window.salvarDadosNoBanco = salvarDadosNoBanco;
