@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html class="dark" lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-tint": "#afc8f0",
+                        "primary-fixed-dim": "#afc8f0",
+                        "on-surface": "#e3e2e5",
+                        "on-tertiary-fixed": "#00210c",
+                        "outline": "#8e9198",
+                        "secondary-fixed": "#e2e2e2",
+                        "surface-container-highest": "#343537",
+                        "tertiary": "#4ae183",
+                        "on-primary-fixed-variant": "#2f486a",
+                        "on-error": "#690005",
+                        "inverse-surface": "#e3e2e5",
+                        "surface-container-high": "#292a2c",
+                        "inverse-on-surface": "#2f3033",
+                        "secondary-fixed-dim": "#c6c6c7",
+                        "on-tertiary-fixed-variant": "#005228",
+                        "background": "#121316",
+                        "tertiary-fixed-dim": "#4ae183",
+                        "on-surface-variant": "#c4c6cf",
+                        "on-secondary": "#2f3131",
+                        "error": "#ffb4ab",
+                        "primary": "#afc8f0",
+                        "on-primary-container": "#6f88ad",
+                        "error-container": "#93000a",
+                        "surface-container-low": "#1a1c1e",
+                        "surface-dim": "#121316",
+                        "surface-bright": "#38393c",
+                        "on-error-container": "#ffdad6",
+                        "surface-variant": "#343537",
+                        "inverse-primary": "#476083",
+                        "on-primary-fixed": "#001c3a",
+                        "on-background": "#e3e2e5",
+                        "surface": "#121316",
+                        "on-primary": "#163152",
+                        "surface-container": "#1f2022",
+                        "on-secondary-fixed": "#1a1c1c",
+                        "secondary": "#c6c6c7",
+                        "outline-variant": "#43474e",
+                        "on-secondary-container": "#b4b5b5",
+                        "primary-container": "#001f3f",
+                        "on-tertiary-container": "#009b50",
+                        "tertiary-container": "#00250e",
+                        "on-tertiary": "#003919",
+                        "tertiary-fixed": "#6bfe9c",
+                        "surface-container-lowest": "#0d0e11",
+                        "on-secondary-fixed-variant": "#454747",
+                        "secondary-container": "#454747",
+                        "primary-fixed": "#d4e3ff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "margin-mobile": "16px",
+                        "gutter": "16px",
+                        "margin-tablet": "32px",
+                        "stack-gap": "12px",
+                        "touch-target-min": "48px",
+                        "touch-target-lg": "64px"
+                    },
+                    "fontFamily": {
+                        "body-md": ["Inter"],
+                        "display-total-mobile": ["Inter"],
+                        "display-total": ["Inter"],
+                        "label-bold": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "label-md": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "body-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-md": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "display-total-mobile": ["36px", {"lineHeight": "44px", "fontWeight": "700"}],
+                        "display-total": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "label-bold": ["16px", {"lineHeight": "24px", "letterSpacing": "0.05em", "fontWeight": "700"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "label-md": ["16px", {"lineHeight": "24px", "fontWeight": "500"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "fontWeight": "700"}],
+                        "body-lg": ["20px", {"lineHeight": "30px", "fontWeight": "400"}]
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        body {
+            background-color: #121316;
+            color: #e3e2e5;
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 48;
+            font-size: 24px;
+        }
+        .touch-target {
+            min-height: 48px;
+            min-width: 48px;
+        }
+        .card-border {
+            border: 1px solid #43474e;
+        }
+        .input-focus:focus {
+            outline: 3px solid #ffffff;
+            border-color: #ffffff;
+        }
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+
+    <header class="bg-background dark:bg-background border-b border-outline-variant dark:border-outline-variant flex justify-between items-center w-full h-[64px] px-margin-mobile md:px-margin-tablet sticky top-0 z-50">
+        <div class="flex items-center gap-4">
+            <span class="material-symbols-outlined text-primary dark:text-primary-fixed-dim">storefront</span>
+            <h1 class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed-dim uppercase">Gerenciamento</h1>
+        </div>
+        <div class="hidden md:flex gap-6">
+            <a class="text-on-surface-variant font-label-md text-label-md hover:bg-surface-container-highest px-4 py-2 rounded transition-colors" href="index.html">Vendas</a>
+            <a class="text-on-surface-variant font-label-md text-label-md hover:bg-surface-container-highest px-4 py-2 rounded transition-colors" href="clientes.html">Clientes</a>
+            <a class="text-primary font-bold font-label-md text-label-md hover:bg-surface-container-highest px-4 py-2 rounded transition-colors" href="#">Gerenciamento</a>
+        </div>
+    </header>
+
+    <main class="flex-grow flex flex-col md:flex-row gap-gutter p-margin-mobile md:p-margin-tablet max-w-7xl mx-auto w-full mb-20">
+        <section class="w-full md:w-5/12 flex flex-col gap-stack-gap">
+            <div class="bg-surface-container p-6 rounded-xl card-border">
+                <h2 class="font-headline-md text-headline-md mb-6 text-on-surface">Novo Produto</h2>
+                <form class="flex flex-col gap-6">
+                    <div class="flex flex-col gap-2">
+                        <label class="font-label-bold text-label-bold text-on-surface-variant" for="product_name">Nome do Produto</label>
+                        <input class="h-[56px] w-full bg-surface-container-high border-2 border-outline-variant rounded-lg px-4 text-body-md font-body-md text-on-surface placeholder:text-on-surface-variant/40 input-focus transition-all" id="product_name" placeholder="Ex: Café Expresso" type="text">
+                    </div>
+                    <div class="flex flex-col gap-2">
+                        <label class="font-label-bold text-label-bold text-on-surface-variant" for="product_price">Preço de Venda (R$)</label>
+                        <input class="h-[56px] w-full bg-surface-container-high border-2 border-outline-variant rounded-lg px-4 text-body-md font-body-md text-on-surface placeholder:text-on-surface-variant/40 input-focus transition-all" id="product_price" placeholder="0,00" step="0.01" type="number">
+                    </div>
+                    <button class="h-touch-target-lg w-full bg-tertiary text-on-tertiary font-headline-md text-headline-md rounded-xl hover:brightness-110 active:scale-95 transition-all shadow-lg flex items-center justify-center gap-2 mt-4" type="submit">
+                        <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">save</span>
+                        Salvar Produto
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <section class="w-full md:w-7/12 flex flex-col gap-stack-gap">
+            <div class="bg-surface-container p-6 rounded-xl card-border flex-grow">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="font-headline-md text-headline-md text-on-surface">Produtos Cadastrados</h2>
+                    <span class="text-on-surface-variant font-label-md text-label-md">0 itens</span>
+                </div>
+                <div class="flex flex-col gap-4 overflow-y-auto max-h-[calc(100vh-350px)]">
+                    </div>
+            </div>
+        </section>
+    </main>
+
+    <nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center bg-surface-container dark:bg-surface-container h-[64px] border-t border-outline-variant dark:border-outline-variant">
+        <a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant h-full hover:bg-surface-container-high w-1/4" href="index.html">
+            <span class="material-symbols-outlined">point_of_sale</span>
+            <span class="font-label-md text-[12px] leading-tight">Vendas</span>
+        </a>
+        <a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant h-full hover:bg-surface-container-high w-1/4" href="clientes.html">
+            <span class="material-symbols-outlined">group</span>
+            <span class="font-label-md text-[12px] leading-tight">Clientes</span>
+        </a>
+        <a class="flex flex-col items-center justify-center text-primary dark:text-primary-fixed-dim font-bold border-t-4 border-primary h-full hover:bg-surface-container-high w-1/4" href="#">
+            <span class="material-symbols-outlined">settings_applications</span>
+            <span class="font-label-md text-[12px] leading-tight">Gerenciamento</span>
+        </a>
+        <a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant h-full w-1/4 hover:bg-surface-container-high" href="historico.html">
+            <span class="material-symbols-outlined">history</span>
+            <span class="font-label-md text-[12px] leading-tight">Histórico</span>
+        </a>
+    </nav>
+
+    <script src="js/db.js"></script>
+    <script src="js/gerenciamento.js"></script>
+</body>
+</html>
