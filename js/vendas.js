@@ -193,11 +193,18 @@ window.finishSale = function() {
 
     receiptItems.innerHTML = '';
     let total = 0;
+    const itensVendidos = [];
 
     carrinho.forEach(item => {
         const subtotal = item.price * item.quantity;
         total += subtotal;
         
+        itensVendidos.push({
+            name: item.name,
+            quantity: item.quantity,
+            subtotal: subtotal
+        });
+
         const row = document.createElement('tr');
         row.innerHTML = `
             <td class="py-1">${item.name.toUpperCase()}</td>
@@ -207,17 +214,27 @@ window.finishSale = function() {
         receiptItems.appendChild(row);
     });
 
+    const clienteNome = clientSelect.value;
+    const dataAtual = new Date().toLocaleDateString('pt-BR');
+    const horaAtual = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
     receiptTotal.innerText = `R$ ${total.toFixed(2).replace('.', ',')}`;
-    receiptClient.innerText = `CLIENTE: ${clientSelect.value}`;
-    receiptDate.innerText = new Date().toLocaleDateString('pt-BR');
+    receiptClient.innerText = `CLIENTE: ${clienteNome}`;
+    receiptDate.innerText = dataAtual;
+
+    const novaVenda = {
+        id: Date.now(),
+        idPedido: Math.floor(1000 + Math.random() * 9000),
+        client: clienteNome,
+        date: dataAtual,
+        time: horaAtual,
+        total: total,
+        items: itensVendidos
+    };
+
+    const historico = obterDadosDoBanco('historico');
+    historico.unshift(novaVenda);
+    salvarDadosNoBanco('historico', historico);
 
     modal.classList.remove('hidden');
-}
-
-window.closeReceipt = function() {
-    const modal = document.getElementById('receipt-modal');
-    if (modal) {
-        modal.classList.add('hidden');
-    }
-    limparCarrinhoCompleto();
 }
