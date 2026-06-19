@@ -2,7 +2,7 @@
 
 <div align="center">
   <!-- Botão Direto para os Prints no LinkedIn -->
-  <a href="https://www.linkedin.com/in/wesley-campelo-60441385/" target="_blank">
+  <a href="https://www.linkedin.com/in/wesley-campelo-640441385/details/projects/" target="_blank">
     <img src="https://img.shields.io/badge/Acesse_as_Telas_do_Sistema-Clique_Aqui-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white" alt="Ver Telas no LinkedIn" />
   </a>
 </div>
