@@ -109,20 +109,25 @@ function renderizarSeletorClientes(chaveArmazenamento) {
     if (!seletor) return;
 
     const clientes = window.obterDadosDoBanco(chaveArmazenamento);
-    seletor.innerHTML = '<option value="CONSUMIDOR">CONSUMIDOR</option>';
+    seletor.innerHTML = `
+        <option value="CONSUMIDOR">CONSUMIDOR</option>
+        <option value="CHURRASCARIA BELÉM">CHURRASCARIA BELÉM</option>
+    `;
 
     clientes.forEach(cliente => {
-        const option = document.createElement('option');
-        option.value = cliente.name.toUpperCase();
-        option.innerText = cliente.name.toUpperCase();
-        seletor.appendChild(option);
+        if (cliente.name.toUpperCase() !== 'CHURRASCARIA BELÉM') {
+            const option = document.createElement('option');
+            option.value = cliente.name.toUpperCase();
+            option.innerText = cliente.name.toUpperCase();
+            seletor.appendChild(option);
+        }
     });
 }
 
 window.adicionarAoCarrinho = function(nomeItem, precoItem) {
     let itemExistente = null;
     if (precoItem > 0) {
-        itemExistente = Pattern = carrinho.find(item => item.name === nomeItem && item.price === precoItem);
+        itemExistente = carrinho.find(item => item.name === nomeItem && item.price === precoItem);
     }
 
     if (itemExistente) {
@@ -144,7 +149,7 @@ window.alterarQuantidadeCarrinho = function(idLinha, delta) {
 
     item.quantity += delta;
     if (item.quantity <= 0) {
-        carrinho = Pattern = carrinho.filter(i => i.idCarrinho !== idLinha);
+        carrinho = carrinho.filter(i => i.idCarrinho !== idLinha);
     }
     renderizarCarrinho();
 }
@@ -234,15 +239,30 @@ window.finishSale = function() {
         return;
     }
 
+    const clienteNome = document.getElementById('client-select').value;
+    
+    // Uma única pergunta de observação opcional no final
+    const observacaoInput = prompt("Deseja adicionar alguma observação ou itens faltantes neste recibo? (Se não, deixe em branco):", "");
+
     const modal = document.getElementById('receipt-modal');
     const receiptItems = document.getElementById('receipt-items');
     const receiptTotal = document.getElementById('receipt-total');
     const receiptClient = document.getElementById('receipt-client');
     const receiptDate = document.getElementById('receipt-date');
     const receiptOrderId = document.getElementById('receipt-order-id');
-    const clientSelect = document.getElementById('client-select');
 
-    if (!modal || !receiptItems || !receiptTotal || !receiptClient || !receiptDate || !receiptOrderId || !clientSelect) return;
+    const receiptObsContainer = document.getElementById('receipt-obs-container');
+    const receiptObsText = document.getElementById('receipt-obs-text');
+    const receiptCanhotoContainer = document.getElementById('receipt-canhoto-container');
+    const canhotoOrderId = document.getElementById('canhoto-order-id');
+    const canhotoClient = document.getElementById('canhoto-client');
+    const canhotoDate = document.getElementById('canhoto-date');
+    const canhotoTotal = document.getElementById('canhoto-total');
+
+    if (!modal || !receiptItems || !receiptTotal || !receiptClient || !receiptDate || !receiptOrderId) return;
+
+    if (receiptObsContainer) receiptObsContainer.classList.add('hidden');
+    if (receiptCanhotoContainer) receiptCanhotoContainer.classList.add('hidden');
 
     receiptItems.innerHTML = '';
     let total = 0;
@@ -267,7 +287,6 @@ window.finishSale = function() {
         receiptItems.appendChild(row);
     });
 
-    const clienteNome = clientSelect.value;
     const dataAtual = new Date().toLocaleDateString('pt-BR');
     const horaAtual = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
     const numeroPedido = Math.floor(1000 + Math.random() * 9000);
@@ -277,6 +296,21 @@ window.finishSale = function() {
     receiptOrderId.innerText = `PEDIDO No: ${numeroPedido}`;
     receiptDate.innerText = `${dataAtual} - ${horaAtual}`;
 
+    // Mostra a observação apenas se você digitou algo nela
+    if (observacaoInput && observacaoInput.trim() !== "" && receiptObsContainer && receiptObsText) {
+        receiptObsText.innerText = observacaoInput.toUpperCase();
+        receiptObsContainer.classList.remove('hidden');
+    }
+
+    if (clienteNome === 'CHURRASCARIA BELÉM' && receiptCanhotoContainer) {
+        if (canhotoOrderId) canhotoOrderId.innerText = `PEDIDO No: ${numeroPedido}`;
+        if (canhotoClient) canhotoClient.innerText = `CLIENTE: ${clienteNome}`;
+        if (canhotoDate) canhotoDate.innerText = `${dataAtual} - ${horaAtual}`;
+        if (canhotoTotal) canhotoTotal.innerText = `R$ ${total.toFixed(2).replace('.', ',')}`;
+        
+        receiptCanhotoContainer.classList.remove('hidden');
+    }
+
     const novaVenda = {
         id: Date.now(),
         idPedido: numeroPedido,
@@ -284,7 +318,8 @@ window.finishSale = function() {
         date: dataAtual,
         time: horaAtual,
         total: total,
-        items: itensVendidos
+        items: itensVendidos,
+        observacao: observacaoInput
     };
 
     const historico = window.obterDadosDoBanco('historico');
