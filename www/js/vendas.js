@@ -120,28 +120,40 @@ function renderizarSeletorClientes(chaveArmazenamento) {
 }
 
 window.adicionarAoCarrinho = function(nomeItem, precoItem) {
-    const itemExistente = carrinho.find(item => item.name === nomeItem);
+    let itemExistente = null;
+    if (precoItem > 0) {
+        itemExistente = carrinho.find(item => item.name === nomeItem && item.price === precoItem);
+    }
+
     if (itemExistente) {
         itemExistente.quantity += 1;
     } else {
-        carrinho.push({ name: nomeItem, price: precoItem, quantity: 1 });
+        carrinho.push({ 
+            idCarrinho: `id_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
+            name: nomeItem, 
+            price: precoItem, 
+            quantity: 1
+        });
     }
     renderizarCarrinho();
 }
 
-window.alterarQuantidadeCarrinho = function(nomeItem, delta) {
-    const item = carrinho.find(i => i.name === nomeItem);
+window.alterarQuantidadeCarrinho = function(idLinha, delta) {
+    const item = carrinho.find(i => i.idCarrinho === idLinha);
     if (!item) return;
 
     item.quantity += delta;
     if (item.quantity <= 0) {
-        carrinho = carrinho.filter(i => i.name !== nomeItem);
+        carrinho = carrinho.filter(i => i.idCarrinho !== idLinha);
     }
     renderizarCarrinho();
 }
 
-window.editarPrecoCarrinho = function(nomeItem) {
-    const novoPrecoTexto = prompt(`Digite o novo preço manual para ${nomeItem}:`);
+window.editarPrecoCarrinho = function(idLinha) {
+    const item = carrinho.find(i => i.idCarrinho === idLinha);
+    if (!item) return;
+
+    const novoPrecoTexto = prompt(`Digite o novo preço manual para ${item.name}:`);
     if (novoPrecoTexto === null) return;
 
     const novoPreco = parseFloat(novoPrecoTexto.replace(',', '.'));
@@ -150,15 +162,12 @@ window.editarPrecoCarrinho = function(nomeItem) {
         return;
     }
 
-    const item = carrinho.find(i => i.name === nomeItem);
-    if (item) {
-        item.price = novoPreco;
-        renderizarCarrinho();
-    }
+    item.price = novoPreco;
+    renderizarCarrinho();
 }
 
-window.removerItemCarrinho = function(nomeItem) {
-    carrinho = carrinho.filter(i => i.name !== nomeItem);
+window.removerItemCarrinho = function(idLinha) {
+    carrinho = carrinho.filter(i => i.idCarrinho !== idLinha);
     renderizarCarrinho();
 }
 
@@ -193,15 +202,15 @@ function renderizarCarrinho() {
                 <span class="font-body-md text-primary">R$ ${item.price.toFixed(2).replace('.', ',')}</span>
             </div>
             <div class="flex items-center gap-2">
-                <button onclick="editarPrecoCarrinho('${item.name}')" class="w-[48px] h-[48px] flex items-center justify-center bg-primary-container text-primary rounded-lg active:scale-95">
+                <button onclick="editarPrecoCarrinho('${item.idCarrinho}')" class="w-[48px] h-[48px] flex items-center justify-center bg-primary-container text-primary rounded-lg active:scale-95">
                     <span class="material-symbols-outlined">edit</span>
                 </button>
                 <div class="flex items-center bg-surface-container border border-outline rounded-lg mx-1 h-[48px]">
-                    <button onclick="alterarQuantidadeCarrinho('${item.name}', -1)" class="w-[40px] h-full text-white text-xl font-bold">-</button>
+                    <button onclick="alterarQuantidadeCarrinho('${item.idCarrinho}', -1)" class="w-[40px] h-full text-white text-xl font-bold">-</button>
                     <span class="w-[30px] text-center font-bold text-white">${item.quantity}</span>
-                    <button onclick="alterarQuantidadeCarrinho('${item.name}', 1)" class="w-[40px] h-full text-white text-xl font-bold">+</button>
+                    <button onclick="alterarQuantidadeCarrinho('${item.idCarrinho}', 1)" class="w-[40px] h-full text-white text-xl font-bold">+</button>
                 </div>
-                <button onclick="removerItemCarrinho('${item.name}')" class="w-[48px] h-[48px] flex items-center justify-center bg-error-container text-error rounded-lg active:scale-95">
+                <button onclick="removerItemCarrinho('${item.idCarrinho}')" class="w-[48px] h-[48px] flex items-center justify-center bg-error-container text-error rounded-lg active:scale-95">
                     <span class="material-symbols-outlined">delete</span>
                 </button>
             </div>
@@ -289,6 +298,7 @@ window.closeReceipt = function() {
     }
     limparCarrinhoCompleto();
 }
+
 function renderizarSugestoesPesquisa(chaveArmazenamento) {
     const datalist = document.getElementById('produtos-sugestoes');
     if (!datalist) return;
