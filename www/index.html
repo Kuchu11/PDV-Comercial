@@ -230,12 +230,14 @@
         </a>
     </nav>
 
-    <div class="fixed inset-0 z-[100] hidden bg-black/80 flex items-center justify-center p-4" id="receipt-modal">
+   <div class="fixed inset-0 z-[100] hidden bg-black/80 flex items-center justify-center p-4" id="receipt-modal">
         <div class="flex flex-col gap-6 w-full max-w-md">
             <div class="receipt-paper p-6 max-h-[70vh] overflow-y-auto">
                 <div class="text-center mb-4">
                     <h3 class="font-bold text-xl uppercase">Depósito São Jerônimo</h3>
-                    <p class="text-sm">DOCUMENTO NÃO-FISCAL</p>
+                    <p class="text-xs uppercase">Rua São Jerônimo, 1831</p>
+                    <p class="text-xs uppercase">Conjunto Metropolitano - Fone: (85) 99671-3293</p>
+                    <p class="text-sm font-bold mt-2">DOCUMENTO NÃO-FISCAL</p>
                     <p class="text-xs">---------------------------------</p>
                     <div class="flex justify-between text-xs my-1 px-2">
                         <span id="receipt-order-id"></span>
@@ -272,7 +274,6 @@
             </div>
         </div>
     </div>
-
     <script>
         let isCartExpanded = true;
         function toggleCart() {

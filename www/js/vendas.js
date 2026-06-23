@@ -122,7 +122,7 @@ function renderizarSeletorClientes(chaveArmazenamento) {
 window.adicionarAoCarrinho = function(nomeItem, precoItem) {
     let itemExistente = null;
     if (precoItem > 0) {
-        itemExistente = carrinho.find(item => item.name === nomeItem && item.price === precoItem);
+        itemExistente = Pattern = carrinho.find(item => item.name === nomeItem && item.price === precoItem);
     }
 
     if (itemExistente) {
@@ -144,7 +144,7 @@ window.alterarQuantidadeCarrinho = function(idLinha, delta) {
 
     item.quantity += delta;
     if (item.quantity <= 0) {
-        carrinho = carrinho.filter(i => i.idCarrinho !== idLinha);
+        carrinho = Pattern = carrinho.filter(i => i.idCarrinho !== idLinha);
     }
     renderizarCarrinho();
 }
@@ -239,9 +239,10 @@ window.finishSale = function() {
     const receiptTotal = document.getElementById('receipt-total');
     const receiptClient = document.getElementById('receipt-client');
     const receiptDate = document.getElementById('receipt-date');
+    const receiptOrderId = document.getElementById('receipt-order-id');
     const clientSelect = document.getElementById('client-select');
 
-    if (!modal || !receiptItems || !receiptTotal || !receiptClient || !receiptDate || !clientSelect) return;
+    if (!modal || !receiptItems || !receiptTotal || !receiptClient || !receiptDate || !receiptOrderId || !clientSelect) return;
 
     receiptItems.innerHTML = '';
     let total = 0;
@@ -269,14 +270,16 @@ window.finishSale = function() {
     const clienteNome = clientSelect.value;
     const dataAtual = new Date().toLocaleDateString('pt-BR');
     const horaAtual = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    const numeroPedido = Math.floor(1000 + Math.random() * 9000);
 
     receiptTotal.innerText = `R$ ${total.toFixed(2).replace('.', ',')}`;
     receiptClient.innerText = `CLIENTE: ${clienteNome}`;
-    receiptDate.innerText = dataAtual;
+    receiptOrderId.innerText = `PEDIDO No: ${numeroPedido}`;
+    receiptDate.innerText = `${dataAtual} - ${horaAtual}`;
 
     const novaVenda = {
         id: Date.now(),
-        idPedido: Math.floor(1000 + Math.random() * 9000),
+        idPedido: numeroPedido,
         client: clienteNome,
         date: dataAtual,
         time: horaAtual,
