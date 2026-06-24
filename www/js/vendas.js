@@ -158,6 +158,23 @@ window.editarPrecoCarrinho = function(idLinha) {
     const item = carrinho.find(i => i.idCarrinho === idLinha);
     if (!item) return;
 
+    const containerPai = document.querySelector(`[data-id="${idLinha}"]`);
+    if (containerPai) {
+        const exibicaoPreco = containerPai.querySelector('.price-display');
+        const inputContainer = containerPai.querySelector('.edit-input-container');
+        
+        if (exibicaoPreco && inputContainer) {
+            exibicaoPreco.classList.add('hidden');
+            inputContainer.classList.remove('hidden');
+            const inputElement = inputContainer.querySelector('input');
+            if (inputElement) {
+                inputElement.focus();
+                inputElement.select();
+            }
+            return;
+        }
+    }
+
     const novoPrecoTexto = prompt(`Digite o novo preço manual para ${item.name}:`);
     if (novoPrecoTexto === null) return;
 
@@ -169,6 +186,23 @@ window.editarPrecoCarrinho = function(idLinha) {
 
     item.price = novoPreco;
     renderizarCarrinho();
+}
+
+window.salvarPrecoDigitado = function(idLinha, elementoInput) {
+    const item = carrinho.find(i => i.idCarrinho === idLinha);
+    if (!item) return;
+
+    const novoPreco = parseFloat(elementoInput.value);
+    if (!isNaN(novoPreco) && novoPreco >= 0) {
+        item.price = novoPreco;
+    }
+    renderizarCarrinho();
+}
+
+window.verificarTeclaPreco = function(e, idLinha, elementoInput) {
+    if (e.key === 'Enter') {
+        window.salvarPrecoDigitado(idLinha, elementoInput);
+    }
 }
 
 window.removerItemCarrinho = function(idLinha) {
@@ -201,13 +235,19 @@ function renderizarCarrinho() {
 
         const itemDiv = document.createElement('div');
         itemDiv.className = 'flex items-center justify-between p-3 bg-surface-container-highest rounded-xl border border-outline-variant';
+        itemDiv.setAttribute('data-id', item.idCarrinho);
         itemDiv.innerHTML = `
-            <div class="flex flex-col">
-                <span class="font-label-bold text-white text-lg">${item.name}</span>
-                <span class="font-body-md text-primary">R$ ${item.price.toFixed(2).replace('.', ',')}</span>
+            <div class="flex flex-col flex-1 min-w-0 pr-2">
+                <span class="font-label-bold text-white text-lg truncate">${item.name}</span>
+                <div class="price-display flex items-center gap-1">
+                    <span class="font-body-md text-primary">R$ ${item.price.toFixed(2).replace('.', ',')}</span>
+                </div>
+                <div class="edit-input-container hidden mt-1">
+                    <input type="number" inputmode="decimal" step="0.01" value="${item.price.toFixed(2)}" class="w-24 p-1 bg-surface-container border border-primary rounded text-white font-bold text-sm focus:outline-none focus:ring-1 focus:ring-primary" onblur="window.salvarPrecoDigitado('${item.idCarrinho}', this)" onkeydown="window.verificarTeclaPreco(event, '${item.idCarrinho}', this)">
+                </div>
             </div>
-            <div class="flex items-center gap-2">
-                <button onclick="editarPrecoCarrinho('${item.idCarrinho}')" class="w-[48px] h-[48px] flex items-center justify-center bg-primary-container text-primary rounded-lg active:scale-95">
+            <div class="flex items-center gap-2 settlement-actions">
+                <button onclick="window.editarPrecoCarrinho('${item.idCarrinho}')" class="w-[48px] h-[48px] flex items-center justify-center bg-primary-container text-primary rounded-lg active:scale-95">
                     <span class="material-symbols-outlined">edit</span>
                 </button>
                 <div class="flex items-center bg-surface-container border border-outline rounded-lg mx-1 h-[48px]">
@@ -240,8 +280,6 @@ window.finishSale = function() {
     }
 
     const clienteNome = document.getElementById('client-select').value;
-    
-    // Uma única pergunta de observação opcional no final
     const observacaoInput = prompt("Deseja adicionar alguma observação ou itens faltantes neste recibo? (Se não, deixe em branco):", "");
 
     const modal = document.getElementById('receipt-modal');
@@ -296,7 +334,6 @@ window.finishSale = function() {
     receiptOrderId.innerText = `PEDIDO No: ${numeroPedido}`;
     receiptDate.innerText = `${dataAtual} - ${horaAtual}`;
 
-    // Mostra a observação apenas se você digitou algo nela
     if (observacaoInput && observacaoInput.trim() !== "" && receiptObsContainer && receiptObsText) {
         receiptObsText.innerText = observacaoInput.toUpperCase();
         receiptObsContainer.classList.remove('hidden');
@@ -349,5 +386,203 @@ function renderizarSugestoesPesquisa(chaveArmazenamento) {
         const option = document.createElement('option');
         option.value = produto.name;
         datalist.appendChild(option);
+    });
+}
+
+window.imprimirReciboBluetooth = function() {
+    if (typeof bluetoothSerial === 'undefined') {
+        alert("O Bluetooth nativo só funciona rodando dentro do celular!");
+        return;
+    }
+
+    bluetoothSerial.isConnected(() => {
+        let clienteNomeRaw = document.getElementById('client-select').value.toUpperCase();
+        const numeroPedido = document.getElementById('receipt-order-id').innerText;
+        const dataHora = document.getElementById('receipt-date').innerText;
+        const valorTotalText = document.getElementById('receipt-total').innerText;
+        let observacaoTextRaw = document.getElementById('receipt-obs-text')?.innerText || "";
+
+        const removerAcentos = (texto) => texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+        const clienteNome = removerAcentos(clienteNomeRaw);
+        const observacaoText = removerAcentos(observacaoTextRaw);
+
+        let textoFatura = "";
+        
+        textoFatura += "            DEPOSITO SAO JERONIMO           \n";
+        textoFatura += "          Rua Sao Jeronimo, 1831            \n";
+        textoFatura += "       Conj. Metropolitano-(85)99671-3293    \n";
+        textoFatura += "------------------------------------------------\n";
+        textoFatura += "             DOCUMENTO NAO-FISCAL               \n";
+        textoFatura += "------------------------------------------------\n";
+        textoFatura += `${numeroPedido}\n`;
+        textoFatura += `DATA: ${dataHora}\n`;
+        textoFatura += `CLIENTE: ${clienteNome}\n`; 
+        textoFatura += "------------------------------------------------\n";
+        textoFatura += "ITEM                            QTD        TOTAL\n"; 
+        textoFatura += "------------------------------------------------\n";
+
+        carrinho.forEach(item => {
+            let nomeProdutoLimpo = removerAcentos(item.name.toUpperCase());
+            let nomeItem = nomeProdutoLimpo.substring(0, 30);
+            let qtdItem = item.quantity.toString();
+            let subtotal = "R$ " + (item.price * item.quantity).toFixed(2).replace('.', ',');
+
+            let parteNome = nomeItem.padEnd(31, ' ');
+            let parteQtd = qtdItem.padEnd(6, ' ');
+            let partePreco = subtotal.padStart(11, ' ');
+
+            textoFatura += `${parteNome}${parteQtd}${partePreco}\n`;
+        });
+
+        textoFatura += "------------------------------------------------\n";
+        if (observacaoText !== "") {
+            textoFatura += `OBSERVACAO:\n${observacaoText.toUpperCase()}\n`;
+            textoFatura += "------------------------------------------------\n";
+        }
+        
+        let labelTotal = "VALOR TOTAL:";
+        let valorPreco = valorTotalText.padStart(36, ' ');
+        textoFatura += `${labelTotal}${valorPreco}\n\n`;
+        
+        textoFatura += "         Obrigado pela preferencia!         \n\n\n";
+
+        if (clienteNome.includes('CHURRASCARIA')) {
+            textoFatura += "================================================\n\n";
+            textoFatura += "               RECIBO DE ENTREGA                \n";
+            textoFatura += "             DEPOSITO SAO JERONIMO              \n";
+            textoFatura += "------------------------------------------------\n";
+            textoFatura += `${numeroPedido}\n`;
+            textoFatura += `CLIENTE: ${clienteNome}\n`;
+            textoFatura += `DATA: ${dataHora}\n`;
+            textoFatura += "------------------------------------------------\n";
+            
+            let labelConf = "VALOR CONFIRMADO:";
+            let valorConf = valorTotalText.padStart(31, ' ');
+            textoFatura += `${labelConf}${valorConf}\n\n`;
+
+            if (observacaoText !== "") {
+                textoFatura += `OBSERVACAO:\n${observacaoText.toUpperCase()}\n`;
+                textoFatura += "------------------------------------------------\n\n";
+            }
+            
+            textoFatura += "Assinatura:\n\n";
+            textoFatura += "________________________________________________\n";
+            
+            let espacosMargem = Math.max(0, Math.floor((48 - clienteNome.length) / 2));
+            textoFatura += " ".repeat(espacosMargem) + clienteNome + "\n";
+        }
+
+        textoFatura += "\n\n\n\n\n";
+
+        bluetoothSerial.write(textoFatura, () => {
+            console.log("Recibo impresso em 48 colunas com sucesso!");
+        }, (erro) => {
+            alert("Erro ao enviar texto para impressora: " + erro);
+        });
+
+    }, () => {
+        alert("A impressora foi desconectada. Vá em Gerenciamento para reconectar.");
+    });
+}
+window.imprimirPedidoAntigo = function(idVenda) {
+    if (typeof bluetoothSerial === 'undefined') {
+        alert("O Bluetooth nativo só funciona rodando dentro do celular!");
+        return;
+    }
+
+    bluetoothSerial.isConnected(() => {
+        const historico = window.obterDadosDoBanco('historico');
+        const venda = historico.find(v => v.id === idVenda);
+
+        if (!venda) {
+            alert("Venda não encontrada no histórico.");
+            return;
+        }
+
+        const removerAcentos = (texto) => texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+        const clienteNome = removerAcentos(venda.client.toUpperCase());
+        const observacaoText = venda.observacao ? removerAcentos(venda.observacao.toUpperCase()) : "";
+        const numeroPedido = `PEDIDO No: ${venda.idPedido}`;
+        const dataHora = `${venda.date} - ${venda.time}`;
+        const valorTotalText = `R$ ${venda.total.toFixed(2).replace('.', ',')}`;
+
+        let textoFatura = "";
+        
+        textoFatura += "            DEPOSITO SAO JERONIMO           \n";
+        textoFatura += "          Rua Sao Jeronimo, 1831            \n";
+        textoFatura += "       Conj. Metropolitano-(85)99671-3293    \n";
+        textoFatura += "------------------------------------------------\n";
+        textoFatura += "          REIMPRESSAO - SEGUNDA VIA             \n";
+        textoFatura += "------------------------------------------------\n";
+        textoFatura += `${numeroPedido}\n`;
+        textoFatura += `DATA: ${dataHora}\n`;
+        textoFatura += `CLIENTE: ${clienteNome}\n`; 
+        textoFatura += "------------------------------------------------\n";
+        textoFatura += "ITEM                            QTD        TOTAL\n"; 
+        textoFatura += "------------------------------------------------\n";
+
+        venda.items.forEach(item => {
+            let nomeProdutoLimpo = removerAcentos(item.name.toUpperCase());
+            let nomeItem = nomeProdutoLimpo.substring(0, 30);
+            let qtdItem = item.quantity.toString();
+            let subtotal = "R$ " + item.subtotal.toFixed(2).replace('.', ',');
+
+            let parteNome = nomeItem.padEnd(31, ' ');
+            let parteQtd = qtdItem.padEnd(6, ' ');
+            let partePreco = subtotal.padStart(11, ' ');
+
+            textoFatura += `${parteNome}${parteQtd}${partePreco}\n`;
+        });
+
+        textoFatura += "------------------------------------------------\n";
+        if (observacaoText !== "") {
+            textoFatura += `OBSERVACAO:\n${observacaoText}\n`;
+            textoFatura += "------------------------------------------------\n";
+        }
+        
+        let labelTotal = "VALOR TOTAL:";
+        let valorPreco = valorTotalText.padStart(36, ' ');
+        textoFatura += `${labelTotal}${valorPreco}\n\n`;
+        
+        textoFatura += "         Obrigado pela preferencia!         \n\n\n";
+
+        if (clienteNome.includes('CHURRASCARIA')) {
+            textoFatura += "================================================\n\n";
+            textoFatura += "               RECIBO DE ENTREGA                \n";
+            textoFatura += "             DEPOSITO SAO JERONIMO              \n";
+            textoFatura += "------------------------------------------------\n";
+            textoFatura += `${numeroPedido}\n`;
+            textoFatura += `CLIENTE: ${clienteNome}\n`;
+            textoFatura += `DATA: ${dataHora}\n`;
+            textoFatura += "------------------------------------------------\n";
+            
+            let labelConf = "VALOR CONFIRMADO:";
+            let valorConf = valorTotalText.padStart(31, ' ');
+            textoFatura += `${labelConf}${valorConf}\n\n`;
+
+            if (observacaoText !== "") {
+                textoFatura += `OBSERVACAO:\n${observacaoText}\n`;
+                textoFatura += "------------------------------------------------\n\n";
+            }
+            
+            textoFatura += "Assinatura:\n\n";
+            textoFatura += "________________________________________________\n";
+            
+            let espacosMargem = Math.max(0, Math.floor((48 - clienteNome.length) / 2));
+            textoFatura += " ".repeat(espacosMargem) + clienteNome + "\n";
+        }
+
+        textoFatura += "\n\n\n\n\n";
+
+        bluetoothSerial.write(textoFatura, () => {
+            console.log("Pedido antigo reimpresso com sucesso!");
+        }, (erro) => {
+            alert("Erro ao enviar texto para impressora: " + erro);
+        });
+
+    }, () => {
+        alert("A impressora está desconectada. Conecte-a na aba Gerenciamento antes de imprimir.");
     });
 }

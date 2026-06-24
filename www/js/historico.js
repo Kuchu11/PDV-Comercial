@@ -19,27 +19,22 @@ function renderizarHistorico(chaveArmazenamento) {
         cardDiv.className = 'bg-surface-container border border-outline-variant p-5 rounded-lg flex flex-col gap-4';
 
         cardDiv.innerHTML = `
-            <div class="flex justify-between items-start">
-                <div>
-                    <span class="font-label-bold text-label-bold text-outline uppercase tracking-widest block mb-1">Pedido #${venda.idPedido}</span>
-                    <h2 class="font-headline-md text-headline-md text-on-surface uppercase">${venda.client}</h2>
-                    <div class="flex items-center gap-2 text-on-surface-variant mt-1">
-                        <span class="material-symbols-outlined text-sm">schedule</span>
-                        <span class="font-body-md text-body-md">${venda.date} - ${venda.time}</span>
-                    </div>
-                </div>
-                <div class="text-right">
-                    <span class="font-label-md text-label-md text-on-surface-variant block">TOTAL</span>
-                    <span class="font-display-total-mobile text-display-total-mobile text-on-surface font-extrabold">R$ ${venda.total.toFixed(2).replace('.', ',')}</span>
-                </div>
-            </div>
-            <div class="flex gap-2 mt-2">
-                <button onclick="excluirVenda('historico', ${venda.id})" class="flex-1 h-touch-target-lg bg-error-container text-error font-label-bold text-label-bold flex items-center justify-center gap-2 rounded-lg border border-error/20 hover:brightness-110 active:scale-[0.98] transition-all">
-                    <span class="material-symbols-outlined">delete</span>
-                    EXCLUIR REGISTRO
-                </button>
-            </div>
-        `;
+    <div class="flex justify-between items-start mb-4">
+        <div>
+            <span class="text-primary font-bold">PEDIDO No: ${venda.idPedido}</span>
+            <p class="text-xs text-on-surface-variant">${venda.date} - ${venda.time}</p>
+            <p class="text-sm font-bold text-white mt-1">CLIENTE: ${venda.client.toUpperCase()}</p>
+        </div>
+        <div class="flex gap-2">
+            <button onclick="window.imprimirPedidoAntigo(${venda.id})" class="w-12 h-12 bg-primary-container text-primary rounded-xl flex items-center justify-center active:scale-95">
+                <span class="material-symbols-outlined">print</span>
+            </button>
+            <button onclick="window.excluirVendaHistorico(${venda.id})" class="w-12 h-12 bg-error-container text-error rounded-xl flex items-center justify-center active:scale-95">
+                <span class="material-symbols-outlined">delete</span>
+            </button>
+        </div>
+    </div>
+`;
         listaContainer.appendChild(cardDiv);
     });
 }
@@ -50,5 +45,18 @@ window.excluirVenda = function(chaveArmazenamento, id) {
         vendas = vendas.filter(v => v.id !== id);
         salvarDadosNoBanco(chaveArmazenamento, vendas);
         renderizarHistorico(chaveArmazenamento);
+    }
+}
+window.excluirVendaHistorico = function(idVenda) {
+    if (!confirm("Tem certeza que deseja apagar esta venda do histórico?")) return;
+
+    let historico = window.obterDadosDoBanco('historico');
+    historico = historico.filter(v => v.id !== idVenda);
+    window.salvarDadosNoBanco('historico', historico);
+    
+    if (typeof renderizarHistorico === 'function') {
+        renderizarHistorico();
+    } else {
+        location.reload();
     }
 }

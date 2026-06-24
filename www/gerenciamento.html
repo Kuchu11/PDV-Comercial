@@ -195,3 +195,28 @@
     <script src="js/gerenciamento.js"></script>
 </body>
 </html>
+<div class="bg-surface-container-high border border-outline-variant p-5 rounded-xl flex flex-col gap-4 mt-6 mb-24">
+        <h2 class="text-xl font-bold text-white flex items-center gap-2">
+            <span class="material-symbols-outlined">bluetooth</span> CONFIGURAR IMPRESSORA
+        </h2>
+        <p class="text-xs text-on-surface-variant">Ligue o Bluetooth do celular e pareie a impressora nas configurações do Android antes de buscar.</p>
+        
+        <div class="flex gap-3">
+            <button onclick="buscarImpressoras()" class="py-3 px-4 bg-primary text-on-primary font-bold rounded-lg flex items-center justify-center gap-2 active:scale-95 text-sm">
+                <span class="material-symbols-outlined">search</span> BUSCAR
+            </button>
+            <button onclick="desconectarImpressora()" class="py-3 px-4 bg-error-container text-error font-bold rounded-lg flex items-center justify-center gap-2 active:scale-95 text-sm">
+                <span class="material-symbols-outlined">bluetooth_disabled</span> DESCONECTAR
+            </button>
+        </div>
+
+        <div id="status-impressao" class="text-sm font-bold text-primary">Status: Não conectada</div>
+
+        <select id="select-impressoras" class="w-full bg-surface-container-highest border-none text-white font-bold py-3 px-4 rounded-lg focus:ring-2 focus:ring-primary hidden">
+            </select>
+
+        <button id="btn-conectar-impressora" onclick="conectarImpressora()" class="w-full py-3 px-4 bg-secondary text-on-secondary font-bold rounded-lg flex items-center justify-center gap-2 active:scale-95 hidden">
+            <span class="material-symbols-outlined">power</span> CONECTAR SELECIONADO
+        </button>
+    </div>
+</main>
