@@ -1,4 +1,5 @@
-let carrinho = [];
+let carrinho = JSON.parse(localStorage.getItem('carrinho_ativo_edicao')) || [];
+localStorage.removeItem('carrinho_ativo_edicao');
 
 document.addEventListener('DOMContentLoaded', () => {
     const inputPesquisa = document.getElementById('input-pesquisa');
@@ -149,7 +150,7 @@ window.alterarQuantidadeCarrinho = function(idLinha, delta) {
 
     item.quantity += delta;
     if (item.quantity <= 0) {
-        carrinho = carrinho.filter(i => i.idCarrinho !== idLinha);
+        carrinho = Math.filter ? carrinho.filter(i => i.idCarrinho !== idLinha) : carrinho.filter(i => i.idCarrinho !== idLinha);
     }
     renderizarCarrinho();
 }
@@ -282,6 +283,10 @@ window.finishSale = function() {
     const clienteNome = document.getElementById('client-select').value;
     const observacaoInput = prompt("Deseja adicionar alguma observação ou itens faltantes neste recibo? (Se não, deixe em branco):", "");
 
+    if (observacaoInput === null) {
+        return; 
+    }
+
     const modal = document.getElementById('receipt-modal');
     const receiptItems = document.getElementById('receipt-items');
     const receiptTotal = document.getElementById('receipt-total');
@@ -316,9 +321,10 @@ window.finishSale = function() {
             subtotal: subtotal
         });
 
+        const precoUnitario = item.price;
         const row = document.createElement('tr');
         row.innerHTML = `
-            <td class="py-1">${item.name.toUpperCase()}</td>
+            <td class="py-1">${item.name.toUpperCase()} (R$ ${precoUnitario.toFixed(2).replace('.', ',')})</td>
             <td class="text-center py-1">${item.quantity}</td>
             <td class="text-right py-1">R$ ${subtotal.toFixed(2).replace('.', ',')}</td>
         `;
@@ -379,7 +385,6 @@ function renderizarSugestoesPesquisa(chaveArmazenamento) {
     if (!datalist) return;
 
     const produtos = window.obterDadosDoBanco(chaveArmazenamento);
-    
     datalist.innerHTML = '';
 
     produtos.forEach(produto => {
@@ -409,11 +414,11 @@ window.imprimirReciboBluetooth = function() {
 
         let textoFatura = "";
         
-        textoFatura += "            DEPOSITO SAO JERONIMO           \n";
+        textoFatura += "            DEPOSITO SAO JERONIMO            \n";
         textoFatura += "          Rua Sao Jeronimo, 1831            \n";
         textoFatura += "       Conj. Metropolitano-(85)99671-3293    \n";
         textoFatura += "------------------------------------------------\n";
-        textoFatura += "             DOCUMENTO NAO-FISCAL               \n";
+        textoFatura += "            DOCUMENTO NAO-FISCAL                \n";
         textoFatura += "------------------------------------------------\n";
         textoFatura += `${numeroPedido}\n`;
         textoFatura += `DATA: ${dataHora}\n`;
@@ -424,7 +429,7 @@ window.imprimirReciboBluetooth = function() {
 
         carrinho.forEach(item => {
             let nomeProdutoLimpo = removerAcentos(item.name.toUpperCase());
-            let nomeItem = nomeProdutoLimpo.substring(0, 30);
+            let nomeItem = `${nomeProdutoLimpo} (UN: R$ ${(item.price).toFixed(2).replace('.', ',')})`.substring(0, 30);
             let qtdItem = item.quantity.toString();
             let subtotal = "R$ " + (item.price * item.quantity).toFixed(2).replace('.', ',');
 
@@ -449,8 +454,8 @@ window.imprimirReciboBluetooth = function() {
 
         if (clienteNome.includes('CHURRASCARIA')) {
             textoFatura += "================================================\n\n";
-            textoFatura += "               RECIBO DE ENTREGA                \n";
-            textoFatura += "             DEPOSITO SAO JERONIMO              \n";
+            textoFatura += "                RECIBO DE ENTREGA                \n";
+            textoFatura += "              DEPOSITO SAO JERONIMO              \n";
             textoFatura += "------------------------------------------------\n";
             textoFatura += `${numeroPedido}\n`;
             textoFatura += `CLIENTE: ${clienteNome}\n`;
@@ -485,6 +490,7 @@ window.imprimirReciboBluetooth = function() {
         alert("A impressora foi desconectada. Vá em Gerenciamento para reconectar.");
     });
 }
+
 window.imprimirPedidoAntigo = function(idVenda) {
     if (typeof bluetoothSerial === 'undefined') {
         alert("O Bluetooth nativo só funciona rodando dentro do celular!");
@@ -510,7 +516,7 @@ window.imprimirPedidoAntigo = function(idVenda) {
 
         let textoFatura = "";
         
-        textoFatura += "            DEPOSITO SAO JERONIMO           \n";
+        textoFatura += "            DEPOSITO SAO JERONIMO            \n";
         textoFatura += "          Rua Sao Jeronimo, 1831            \n";
         textoFatura += "       Conj. Metropolitano-(85)99671-3293    \n";
         textoFatura += "------------------------------------------------\n";
@@ -525,7 +531,7 @@ window.imprimirPedidoAntigo = function(idVenda) {
 
         venda.items.forEach(item => {
             let nomeProdutoLimpo = removerAcentos(item.name.toUpperCase());
-            let nomeItem = nomeProdutoLimpo.substring(0, 30);
+            let nomeItem = `${nomeProdutoLimpo} (UN: R$ ${(item.subtotal / item.quantity).toFixed(2).replace('.', ',')})`.substring(0, 30);
             let qtdItem = item.quantity.toString();
             let subtotal = "R$ " + item.subtotal.toFixed(2).replace('.', ',');
 
@@ -550,8 +556,8 @@ window.imprimirPedidoAntigo = function(idVenda) {
 
         if (clienteNome.includes('CHURRASCARIA')) {
             textoFatura += "================================================\n\n";
-            textoFatura += "               RECIBO DE ENTREGA                \n";
-            textoFatura += "             DEPOSITO SAO JERONIMO              \n";
+            textoFatura += "                RECIBO DE ENTREGA                \n";
+            textoFatura += "              DEPOSITO SAO JERONIMO              \n";
             textoFatura += "------------------------------------------------\n";
             textoFatura += `${numeroPedido}\n`;
             textoFatura += `CLIENTE: ${clienteNome}\n`;
